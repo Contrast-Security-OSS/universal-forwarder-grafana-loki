@@ -1,0 +1,13 @@
+sources:
+  vector_metrics:
+    type: internal_metrics
+sinks:
+  prometheus:
+    type: prometheus_remote_write
+    endpoint: ${PROMETHEUS_ENDPOINT}
+    inputs:
+      - vector_metrics
+    auth:
+      strategy: basic
+      user: "${PROMETHEUS_USER}"
+      password: ${PROMETHEUS_TOKEN}

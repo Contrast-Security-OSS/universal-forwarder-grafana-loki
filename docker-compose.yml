@@ -1,0 +1,19 @@
+services:
+  vector:
+    image: timberio/vector:0.49.X-alpine
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./conf:/etc/vector
+    environment:
+      VECTOR_CONFIG_DIR: /etc/vector
+      VECTOR_LOG: INFO #DEBUG
+    env_file:
+      - .env
+
+  # Optional Loki service for local testing (comment out if using external)
+  #loki:
+  #  image: grafana/loki:2.9.15
+  #  ports:
+  #    - "3100:3100"
+  #  command: -config.file=/etc/loki/local-config.yaml
