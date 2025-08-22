@@ -1,0 +1,27 @@
+name: Validate Vector Config
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: ["v*"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  run-bash:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run bash commands
+        run: |
+          docker run -v ${{ github.workspace }}/conf:/etc/vector/ -e VECTOR_CONFIG_DIR=/etc/vector/ -e LOKI_ENDPOINT -e LOKI_USER -e LOKI_TOKEN -e PROMETHEUS_ENDPOINT -e PROMETHEUS_USER -e PROMETHEUS_TOKEN $(yq .services.vector.image docker-compose.yml) validate --no-environment --skip-healthchecks
+        env:
+          LOKI_ENDPOINT: "http://not_real_endpoint:3100/loki/api/v1/push"
+          LOKI_USER: "not_real_username"
+          LOKI_TOKEN: "not_real_token"
+          PROMETHEUS_ENDPOINT: "http://not_real_endpoint:9090/api/v1/write"
+          PROMETHEUS_USER: "not_real_username"
+          PROMETHEUS_TOKEN: "not_real_token"
