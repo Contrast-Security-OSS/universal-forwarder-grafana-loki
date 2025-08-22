@@ -1,0 +1,41 @@
+sources:
+  contrast_universal_forwarder:
+    type: http_server
+    address: 0.0.0.0:9000
+    encoding: json
+transforms:
+  lowercase_contrast_labels:
+    type: remap
+    inputs:
+      - contrast_universal_forwarder
+    source: |
+      .service = .application.name
+      .result = downcase(.result) ?? ""
+      .rule = downcase(.rule) ?? ""
+      .severity = downcase(.severity) ?? ""
+#Removing timestamp config as this results in out of order messages which get rejected.
+#example detectedTime2025-08-07T09:54:31.005Z
+#.timestamp = parse_timestamp(.detectedTime, "%Y-%m-%dT%H:%M:%S%.fZ") ?? ""
+sinks:
+  loki:
+    type: loki
+    inputs:
+      - lowercase_contrast_labels
+    endpoint: ${LOKI_ENDPOINT}
+    auth:
+      strategy: basic
+      user: "${LOKI_USER}"
+      password: ${LOKI_TOKEN}
+    encoding:
+      codec: json
+    labels:
+      source: contrast_universal_forwarder
+      service: "{{ service }}"
+      result: "{{ result }}"
+      rule: "{{ rule }}"
+      severity: "{{ severity }}"
+      application_*: "{{ application }}"
+      server_*: "{{ server }}"
+    buffer:
+      type: memory
+      max_events: 5000
