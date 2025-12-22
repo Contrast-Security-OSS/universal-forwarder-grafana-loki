@@ -1,6 +1,6 @@
 services:
   vector:
-    image: timberio/vector:0.51.1-alpine
+    image: timberio/vector:0.52.0-alpine
     ports:
       - "9000:9000"
     volumes:
